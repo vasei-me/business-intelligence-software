@@ -1,0 +1,252 @@
+@startuml SepidZ_BI_Class_Diagram
+' ====================================================
+' تنظیمات ظاهری
+' ====================================================
+skinparam shadowing false
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #1E293B
+    ArrowColor #64748B
+    FontName Segoe UI
+}
+skinparam stereotypeCBackgroundColor #E0E7FF
+skinparam stereotypeIBackgroundColor #FEF3C7
+
+title **SepidZ BI - Core Class Diagram (15 Classes)**\nBased on Kimball + CRISP-DM + NFRs
+caption ۱۲–۱۷ کلاس | اتریبیوت + متد | روابط دقیق
+
+' ====================================================
+' 1. Fact & Dimension Tables (Kimball Model)
+' ====================================================
+class FactSales {
+    + saleID : UUID
+    + quantity : Integer
+    + unitPrice : Decimal
+    + totalAmount : Decimal
+    + discount : Decimal
+    + dateKey : Integer
+    + productKey : Integer
+    + customerKey : Integer
+    + branchKey : Integer
+    --
+    + calculateProfit() : Decimal
+    + applyDiscount() : Decimal
+}
+
+class DimProduct {
+    + productKey : Integer
+    + name : String
+    + category : String
+    + costPrice : Decimal
+    + shelfLifeDays : Integer
+    + isPerishable : Boolean
+    --
+    + isExpired(date) : Boolean
+}
+
+class DimCustomer {
+    + customerKey : Integer
+    + fullName : String
+    + phone : String
+    + email : String
+    + lastVisitDate : Date
+    + lifetimeValue : Decimal
+    + segment : String
+    --
+    + calculateLTV() : Decimal
+    + updateSegment()
+}
+
+class DimTime {
+    + dateKey : Integer
+    + fullDate : Date
+    + day : Integer
+    + month : Integer
+    + year : Integer
+    + isHoliday : Boolean
+    + quarter : String
+}
+
+class DimBranch {
+    + branchKey : Integer
+    + name : String
+    + city : String
+    + capacity : Integer
+    + latitude : Double
+    + longitude : Double
+}
+
+' ====================================================
+' 2. Core BI Engine
+' ====================================================
+class ETLProcess {
+    + processID : UUID
+    + name : String
+    + schedule : Cron
+    + lastRun : DateTime
+    + status : Enum
+    --
+    + extract()
+    + transform()
+    + load()
+    + validateQuality() → NFR-021
+}
+
+class DataQualityMonitor {
+    + monitorID : UUID
+    + thresholdAccuracy : Double
+    + lastScore : Double
+    --
+    + runValidation()
+    + sendAlert(issue)
+    + logAnomaly()
+}
+
+class PredictionModel {
+    + modelID : UUID
+    + algorithm : String
+    + trainedOn : Date
+    + accuracy : Double
+    + target : String
+    --
+    + train(data)
+    + predictDemand(product, period) → NFR-012
+    + evaluate()
+}
+
+' ====================================================
+' 3. Reporting & Dashboard
+' ====================================================
+class Report {
+    + reportID : UUID
+    + type : String
+    + generatedAt : DateTime
+    + format : Enum{PDF, Excel}
+    --
+    + generate()
+    + export()
+    + sendToGovAPI() → NFR-017
+}
+
+class TaxReport {
+    + periodStart : Date
+    + periodEnd : Date
+    + totalTax : Decimal
+    --
+    + validateForMaliat()
+}
+
+class Dashboard {
+    + dashboardID : UUID
+    + name : String
+    + layoutJSON : JSON
+    + refreshRateSec : Integer
+    --
+    + render()
+    + applyFilter()
+    + saveLayout()
+    + addWidget(viz)
+}
+
+class Visualization {
+    + vizID : UUID
+    + type : String
+    + dataSource : String
+    + config : JSON
+    --
+    + renderChart()
+}
+
+' ====================================================
+' 4. Security & Audit
+' ====================================================
+class User {
+    + userID : UUID
+    + username : String
+    + role : Role
+    + branchKey : Integer
+    --
+    + login()
+    + hasPermission(resource) → NFR-008
+    + enable2FA() → NFR-022
+}
+
+enum Role {
+    Admin
+    Manager
+    Analyst
+    Viewer
+}
+
+class AuditLog {
+    + logID : UUID
+    + userID : UUID
+    + action : String
+    + timestamp : DateTime
+    + ipAddress : String
+    --
+    + logAction()
+    + exportLog()
+}
+
+' ====================================================
+' 5. Inventory Optimization
+' ====================================================
+class InventoryOptimizer {
+    + optimizerID : UUID
+    + productKey : Integer
+    + reorderPoint : Integer
+    + safetyStock : Integer
+    --
+    + calculateReorder()
+    + predictWaste() → reduce waste
+    + adjustStock()
+}
+
+' ====================================================
+' روابط (Relationships)
+' ====================================================
+
+' --- Kimball Star Schema ---
+FactSales "1" --> "1" DimProduct : productKey
+FactSales "1" --> "1" DimCustomer : customerKey
+FactSales "1" --> "1" DimTime : dateKey
+FactSales "1" --> "1" DimBranch : branchKey
+
+' --- ETL Flow ---
+ETLProcess "1" --> "1" FactSales : loads
+ETLProcess "1" --> "1..*" DimProduct : updates
+DataQualityMonitor "1" --> "1" ETLProcess : monitors
+
+' --- Prediction ---
+PredictionModel "1" --> "1" FactSales : trains on
+PredictionModel "1" --> "1" DimProduct : predicts for
+
+' --- Reporting ---
+Report <|-- TaxReport : Generalization
+Dashboard "1" *-- "1..*" Visualization : contains
+Report "1" --> "1" Dashboard : displayed in
+
+' --- Security ---
+User "1" --> "1" Role : has
+User "1" --> "0..*" Dashboard : views
+AuditLog "1" --> "1" User : performed by
+
+' --- Inventory ---
+InventoryOptimizer "1" --> "1" DimProduct : optimizes
+InventoryOptimizer "1" --> "1" PredictionModel : uses
+
+' --- NFR Highlights ---
+note right of PredictionModel
+  NFR-012: Predict in < 30s
+end note
+
+note right of ETLProcess
+  NFR-021: Auto-clean duplicates
+end note
+
+note right of User
+  NFR-022: 2FA for Admins
+end note
+
+@enduml

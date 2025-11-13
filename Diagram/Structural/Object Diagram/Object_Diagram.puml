@@ -1,0 +1,78 @@
+@startuml Sequence_Diagram
+' ----------------------------------------------------
+' Global Style Configuration (تنظیمات ظاهری)
+' ----------------------------------------------------
+skinparam style strict
+skinparam shadowing false
+
+skinparam sequence {
+    LifeLineBorderColor #2C3E50
+    LifeLineBackgroundColor #F4F6F6
+    ArrowColor #1ABC9C
+    ActorBorderColor #2C3E50
+    ParticipantBorderColor #3498DB
+    ParticipantBackgroundColor #D6EAF8
+}
+
+title **Sepidz BI Platform - Sequence Diagram: ETL Execution and Data Cleansing**
+caption Modeling the process of reliable data loading (NFR-013 & NFR-021)
+
+' ----------------------------------------------------
+' PARTICIPANTS (شرکت‌کنندگان)
+' ----------------------------------------------------
+actor "Data Engineer" as Engineer
+participant "Scheduler Service" as Scheduler
+box "ETL Processing Layer" #LightYellow
+    participant "ETL Engine" as ETL
+    participant "Data Quality Service" as DQS <<NFR-021>>
+end box
+database "Raw Data Sources" as RDS
+database "Data Warehouse (DW)" as DW
+
+' ----------------------------------------------------
+' SEQUENCE (توالی)
+' ----------------------------------------------------
+autonumber
+Engineer -> Scheduler : **requestStartETL(ProcessID)**
+activate Scheduler
+
+Scheduler -> ETL : **startScheduledRun()**
+activate ETL
+
+' 1. Extraction Phase
+ETL -> RDS : **extractRawData(Query)**
+activate RDS
+RDS --> ETL : **return Raw Data Set**
+deactivate RDS
+
+' 2. Transformation & Cleansing Phase (NFR-021)
+ETL -> DQS : **validateAndClean(DataSet)**
+activate DQS
+    note right of DQS
+        Applies automated cleansing rules
+        (e.g., deduplication, NULL handling)
+    end note
+DQS --> ETL : **return Clean Data Set**
+deactivate DQS
+
+' 3. Loading Phase (NFR-013)
+ETL -> DW : **loadTransformedData(CleanDataSet)**
+activate DW
+    note right of DW
+        Transaction committed only if load is complete (NFR-013 Reliability)
+    end note
+DW --> ETL : **ACK: Load Successful**
+deactivate DW
+
+alt ETL Success
+    ETL --> Scheduler : **notifySuccess(ProcessID)**
+else ETL Failure
+    ETL -> Engineer : **notifyError(ProcessID, Logs)**
+    ETL --> Scheduler : **notifyFailure(ProcessID)**
+end
+
+deactivate ETL
+Scheduler --> Engineer : **Final Status: Complete**
+deactivate Scheduler
+
+@enduml

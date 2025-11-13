@@ -1,0 +1,84 @@
+@startuml Deployment_Diagram
+' ----------------------------------------------------
+' Global Style Configuration (تنظیمات ظاهری)
+' ----------------------------------------------------
+skinparam style strict
+skinparam shadowing false
+
+skinparam node {
+    BorderColor #2C3E50
+    BackgroundColor #F4F6F6
+    FontName Arial
+    FontSize 13
+    StereotypeFontColor #1F618D
+}
+
+skinparam artifact {
+    BorderColor #1A5276
+    BackgroundColor #D4E6F1
+}
+
+title **Sepidz BI Platform - Deployment Diagram**
+caption Mapping Software Artifacts to Physical Nodes
+
+' ----------------------------------------------------
+' NODES (گره‌ها/سرورها)
+' ----------------------------------------------------
+
+' 1. Client Node (سمت کاربر)
+node "User Device" as ClientNode <<Web Browser / Desktop>> {
+    artifact "User Interface Artifact" as UIArtifact
+}
+
+' 2. Application Server Node (لایه وب و تحلیل)
+node "Application Server Cluster" as AppServer <<Cloud/Server Farm>> {
+    component [Web Portal Service] as WebSrv
+    component [Reporting & KPI Service] as ReportSrv
+    component [Security Manager] as SecurityMgr <<NFR-022>>
+
+    ' Deployable artifacts on App Server
+    artifact "BI_Services.jar" as BIJar
+    artifact "Web_Assets.zip" as WebZip
+}
+
+' 3. Data Processing & ETL Server Node (لایه پردازش)
+node "ETL Processing Server" as ETLServer <<Dedicated Worker Node>> {
+    component [ETL Pipeline Engine] as ETL_Engine <<NFR-013>>
+    component [Data Quality/Cleansing Script] as QualityScripts <<NFR-021>>
+}
+
+' 4. Database Server Node (لایه داده)
+node "Data Warehouse Server" as DBServer <<High Performance DB>> {
+    component [Data Warehouse] as DW_Comp
+    component [MetaData Repository] as Meta_Comp
+}
+
+' ----------------------------------------------------
+' COMMUNICATION PATHS (مسیرهای ارتباطی)
+' ----------------------------------------------------
+
+' 1. Client to Application Server (HTTP/S)
+ClientNode -- AppServer : **HTTPS/443** (User Request)
+
+' 2. Application Server to DB Server (Database Protocol)
+AppServer -- DBServer : **JDBC/ODBC** (Data Queries)
+
+' Security Manager connects everywhere for Authentication/Authorization
+AppServer ..> SecurityMgr : Uses Auth/AuthZ
+SecurityMgr -- DBServer : Connects (Role-Based Access)
+
+' 3. ETL Server to DB Server (Data Loading/Write)
+ETLServer -- DBServer : **Bulk Load Protocol** (Data Load)
+
+' 4. ETL Server to External Data Sources (FTP/API/DB)
+node "External Data Sources" as EDS <<Remote Systems>>
+EDS -- ETLServer : **FTP/SFTP/API** (Raw Data Ingestion)
+
+' ----------------------------------------------------
+' ARTIFACT DEPLOYMENT (استقرار آرتیفکت‌ها)
+' ----------------------------------------------------
+UIArtifact --> ClientNode
+BIJar --> AppServer
+WebZip --> AppServer
+
+@enduml

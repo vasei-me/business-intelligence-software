@@ -1,0 +1,35 @@
+@startuml State_Machine_Diagram_CLEAN
+
+title **State Machine: Analytical Report Lifecycle (Cleaned)**
+
+hide empty description
+
+' Initial State
+[*] --> Drafting : Create_New_Report
+
+' === States ===
+state Drafting
+state Testing
+state Approved
+state Active
+state Archived
+
+' === Notes (Attached to States) ===
+note right of Drafting : Requirements & Model Development.
+note left of Testing : Unit, Integration, and UAT.
+
+' === Transitions ===
+Drafting --> Testing : Submit_for_Validation
+Testing --> Approved : UAT_Sign_Off_Successful
+Testing --> Drafting : UAT_Failed_or_Bugs_Found
+
+Approved --> Active : Deploy_to_Production
+Active --> Drafting : Retrain_Model_Required
+Active --> Archived : Not_Used_for_Period
+
+Archived --> Active : Reactivation_Request
+
+' Final State
+Archived --> [*] : Data_Retention_Expired
+
+@enduml

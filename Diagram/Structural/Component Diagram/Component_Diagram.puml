@@ -1,0 +1,91 @@
+@startuml Component_Diagram
+' ----------------------------------------------------
+' Global Style Configuration (تنظیمات ظاهری)
+' ----------------------------------------------------
+skinparam style strict
+skinparam shadowing false
+
+skinparam component {
+    BorderColor #1A5276
+    BackgroundColor #D4E6F1
+    FontName Arial
+    FontSize 12
+    ArrowColor #2874A6
+    ' Increase padding for better label separation
+    Padding 10
+}
+skinparam interface {
+    BorderColor #A93226
+    BackgroundColor #FADBD8
+}
+
+title **Sepidz BI Platform - Core Component Diagram**
+caption High-level Architecture View based on Modular Design
+
+' ----------------------------------------------------
+' LAYERS (لایه‌ها)
+' (Changed layout to ensure vertical separation)
+' ----------------------------------------------------
+
+' 1. Presentation Layer (لایه ارائه - بالا)
+package "Presentation Layer" as Presentation {
+  [Web Portal / UI] as UI
+  [Visualization Engine] as VizEngine
+}
+
+' 2. Application / Analytics Layer (لایه کاربرد)
+package "Application & Analytics Layer" as AppLayer {
+  component [Security & Access Manager] as SecurityMgr <<NFR-022>>
+  component [Reporting & KPI Service] as Reporting
+  component [Forecasting Module] as Forecasting <<NFR-012>>
+}
+
+' 3. Data Processing Layer (لایه پردازش داده)
+package "Data Processing Layer" as Processing {
+  component [ETL Pipeline] as ETL <<NFR-013>>
+  component [Data Quality Service] as DataQuality <<NFR-021>>
+}
+
+' 4. Data Layer (لایه داده - پایین)
+package "Data Storage Layer" as DataLayer {
+  [Data Warehouse (DW)] as DW
+  [Raw Data Sources] as RawSources
+}
+
+' ----------------------------------------------------
+' INTERFACES (واسط‌ها)
+' ----------------------------------------------------
+interface "IAuthenticationService" as Auth
+interface "IDataAccess" as DataAccess
+interface "IKPIs" as KPI_Interface
+
+' ----------------------------------------------------
+' DEPENDENCIES (وابستگی‌ها)
+' ----------------------------------------------------
+
+' 1. Presentation to Application Layer
+UI --> Reporting : Fetches Reports
+UI --> VizEngine : Renders Visuals
+
+' Security and Authentication
+UI -down-> Auth : Requires Login
+SecurityMgr -r- Auth
+SecurityMgr -down-> Reporting : Enforces Permissions
+
+' 2. Application to Data Layer
+Reporting -down-> DW : Queries Aggregates
+Forecasting -down-> DW : Queries Historical Data
+
+' Component-Interface Connections
+VizEngine -down- DataAccess : Uses Data API
+Reporting .up.> KPI_Interface : Uses Calculations
+DW -up- DataAccess : Implements Data Access
+
+' 3. Data Processing Layer
+Processing -down-> DataLayer
+
+ETL -up-> RawSources : Extracts Data
+ETL -r-> DataQuality : Cleanses Data
+ETL -down-> DW : Loads Transformed Data
+
+@enduml

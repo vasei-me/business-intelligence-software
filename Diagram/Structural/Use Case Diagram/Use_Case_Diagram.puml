@@ -1,0 +1,144 @@
+@startuml SepidZ_BI_Use_Case_Diagram
+' ====================================================
+' تنظیمات ظاهری
+' ====================================================
+skinparam shadowing false
+skinparam handwritten false
+skinparam style strict
+
+skinparam actor {
+    BorderColor #1E293B
+    BackgroundColor #E0E7FF
+    FontColor #1E293B
+}
+skinparam usecase {
+    BorderColor #0F766E
+    BackgroundColor #F0FDF4
+    FontName Segoe UI
+}
+skinparam package {
+    BorderColor #64748B
+    BackgroundColor #F8FAFC
+}
+
+title **SepidZ BI - Use Case Diagram (6 Actors, 14 Use Cases)**
+caption بر اساس داکیومنت | CRISP-DM | NFRs | ۵–۷ اکتور
+
+' ====================================================
+' ACTORS (۶ اکتور)
+' ====================================================
+actor "Restaurant Manager" as RM <<n users>>
+actor "Inventory Manager" as IM
+actor "Marketing Team" as MT
+actor "Data Analyst" as DA
+actor "System Admin" as SA
+actor "Tax Authority" as TA <<External>>
+actor "Insurance Agency" as IA <<External>>
+
+' ====================================================
+' SYSTEM BOUNDARY
+' ====================================================
+rectangle "SepidZ BI Platform" {
+
+  ' --- Data & ETL ---
+  package "Data Management" {
+    usecase "Run ETL Process" as UC1
+    usecase "Clean & Validate Data" as UC2 <<NFR-021>>
+    usecase "Monitor Data Quality" as UC3 <<NFR-028>>
+  }
+
+  ' --- Analytics & Prediction ---
+  package "Analytics Engine" {
+    usecase "Predict Demand" as UC4 <<NFR-012>>
+    usecase "Segment Customers" as UC5
+    usecase "Calculate COGS" as UC6
+    usecase "Analyze Waste" as UC7
+  }
+
+  ' --- Reporting & Dashboard ---
+  package "Reporting & Visualization" {
+    usecase "View Dashboard" as UC8 <<NFR-001>>
+    usecase "Customize Dashboard" as UC9 <<NFR-014>>
+    usecase "Generate Report" as UC10
+    usecase "Export Report (PDF/Excel)" as UC11 <<NFR-010>>
+  }
+
+  ' --- Legal & Integration ---
+  package "Compliance & Integration" {
+    usecase "Generate Tax Report" as UC12 <<NFR-017>>
+    usecase "Send to Tax Portal" as UC13
+    usecase "Generate Insurance Report" as UC14
+  }
+
+  ' --- Security & Admin ---
+  package "Administration" {
+    usecase "Manage User Roles" as UC15 <<NFR-008>>
+    usecase "View Audit Log" as UC16 <<NFR-015>>
+    usecase "Enable 2FA" as UC17 <<NFR-022>>
+  }
+}
+
+' ====================================================
+' RELATIONSHIPS
+' ====================================================
+
+' --- Restaurant Manager (n users) ---
+RM --> UC8
+RM --> UC9
+RM --> UC4
+RM --> UC6
+RM --> UC11
+
+' --- Inventory Manager ---
+IM --> UC4
+IM --> UC7
+IM --> UC6
+IM --> UC1
+IM --> UC3
+
+' --- Marketing Team ---
+MT --> UC5
+MT --> UC8
+MT --> UC9
+MT --> UC11
+
+' --- Data Analyst ---
+DA --> UC1
+DA --> UC2
+DA --> UC4
+DA --> UC5
+DA --> UC10
+
+' --- System Admin ---
+SA --> UC15
+SA --> UC16
+SA --> UC17
+SA --> UC1
+SA --> UC3
+
+' --- External Systems ---
+TA <-- UC13 : receives
+IA <-- UC14 : receives
+
+' --- Include / Extend / Generalization ---
+UC1 .> UC2 : <<include>> (always clean)
+UC1 .> UC3 : <<include>> (monitor quality)
+
+UC10 <|-- UC12 : <<generalization>> (Tax is a Report)
+UC10 <|-- UC14 : <<generalization>> (Insurance is a Report)
+
+UC8 .> UC9 : <<extend>> (optional customization)
+UC4 .> UC7 : <<extend>> (optional waste analysis)
+
+' --- NFR Notes ---
+note right of UC4
+  NFR-012: < 30s prediction
+end note
+note right of UC8
+  NFR-001: < 10s load
+end note
+note right of UC17
+  NFR-022: 2FA for Admin
+end note
+
+@enduml

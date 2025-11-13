@@ -1,0 +1,78 @@
+@startuml Package_Diagram
+' ----------------------------------------------------
+' Global Style Configuration (تنظیمات ظاهری)
+' ----------------------------------------------------
+skinparam style strict
+skinparam shadowing false
+
+skinparam package {
+    BorderColor #1E8449
+    BackgroundColor #E9F7EF
+    FontName Arial
+    FontSize 13
+    HeaderBackgroundColor #A9DFBF
+    ArrowColor #27AE60
+}
+
+title **Sepidz BI Platform - Logical Package Diagram**
+caption Organizing the System Structure and Dependencies
+
+' ----------------------------------------------------
+' CORE PACKAGES (بسته‌های اصلی)
+' ----------------------------------------------------
+
+package "1. Presentation" as Presentation {
+    ' Layer for user interface and visualization
+    package "User Interface" as UI
+    package "Visualization" as VIZ
+}
+
+package "2. Application" as Application {
+    ' Core business logic and services
+    package "Reporting Services" as ReportSrv
+    package "Analytics & Modeling" as Analytics
+    package "Security & Role Mgmt" as Security <<NFR-022>>
+}
+
+package "3. Data Management" as DataManagement {
+    ' Data processing and quality
+    package "ETL & Integration" as ETL <<NFR-013>>
+    package "Data Cleansing" as Quality <<NFR-021>>
+}
+
+package "4. Data Storage" as DataStorage {
+    ' Permanent storage structures
+    package "Data Warehouse Schema" as DW
+    package "MetaData Repository" as MetaData
+}
+
+' ----------------------------------------------------
+' DEPENDENCIES (وابستگی‌ها)
+' ----------------------------------------------------
+' Dependencies always flow from higher/client packages to lower/server packages
+
+' 1. Presentation depends on Application
+Presentation ..> Application : Uses Services
+
+' Specific Dependencies in Application Layer
+ReportSrv .up.> Analytics : Uses Model Outputs
+Application ..> Security : Checks Permissions (NFR-022)
+
+' 2. Application depends on Data Management (through Abstraction)
+ReportSrv ..> DW : Queries Facts/Dimensions
+
+' 3. Data Management dependencies
+ETL ..> Quality : Must Clean Data (NFR-021)
+DataManagement ..> DataStorage : Loads Data
+
+' ETL needs metadata for process tracking
+ETL ..> MetaData : Logs and Configuration
+
+' VIZ needs data model knowledge
+VIZ ..> DW : Understands Schema
+
+' Highlighting the Main Flow
+UI ..> ReportSrv : Request Report Data
+ReportSrv ..> DW : Execute Query
+
+@enduml

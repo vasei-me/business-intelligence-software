@@ -1,0 +1,51 @@
+@startuml Sequence_Diagram_Minimal
+
+title **Sequence Diagram: Analytical Report Request (Minimal)**
+
+actor User
+participant "BI Portal" as Portal
+participant "Analytics Engine" as Engine
+database "Data Warehouse" as DWH
+participant "Data Access Layer" as DAL
+
+' === Simplified Flow ===
+
+User -> Portal: **RequestLogin()**
+activate Portal
+
+Portal -> Portal: **ValidateCredentials()**
+
+alt **If Access Granted**
+    
+    User -> Portal: **SubmitReportParameters()**
+
+    Portal -> Engine: **RequestData(Criteria)**
+    activate Engine
+
+    Engine -> DAL: **GenerateQuery()**
+    activate DAL
+    
+    DAL -> DWH: **ExecuteQuery()**
+    activate DWH
+    DWH --> DAL: **ReturnRawData()**
+    deactivate DWH
+    
+    DAL --> Engine: **ReturnDataSet()**
+    deactivate DAL
+
+    Engine -> Engine: **CalculateKPIs()**
+    Engine --> Portal: **ReturnStructuredData()**
+    deactivate Engine
+
+    Portal -> Portal: **RenderReport()**
+    Portal --> User: **DisplayReport()**
+    deactivate Portal
+
+else **If Access Denied**
+
+    Portal --> User: **DisplayError()**
+    deactivate Portal
+
+end
+
+@enduml

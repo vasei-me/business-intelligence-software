@@ -1,0 +1,39 @@
+@startuml
+title Custom Report Generation (Standard)
+
+actor Manager as "Manager\n(User)"
+participant UI as "UI\n(Frontend)"
+participant SecurityMgr as "SecurityMgr\n(Auth Service)"
+participant ReportSrv as "ReportSrv\n(Report Engine)"
+participant DW as "DW\n(Data Warehouse)"
+
+== Step 1: Request Form ==
+Manager -> UI: 1: requestCustomReportForm()
+
+== Step 2: Authorization ==
+UI -> SecurityMgr: 2: checkPermissions(UserID)
+SecurityMgr --> UI: 3: permissionGranted(Role)
+
+== Step 3: Submit Report ==
+UI -> ReportSrv: 4: submitReportDefinition(Filters,Metrics)
+
+== Step 4: Data Retrieval ==
+ReportSrv -> DW: 5: executeOptimizedQuery(SQL)
+DW --> ReportSrv: 6: returnRawResults()
+
+== Step 5: Render Report ==
+ReportSrv --> UI: 7: formatAndRenderReport(Results)
+
+== Step 6: Display ==
+UI --> Manager: 8: displayCustomReport(ReportHTML)
+
+' Styling for clarity and size
+skinparam dpi 300
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ParticipantPadding 30
+skinparam BoxPadding 40
+skinparam sequenceMessageAlign center
+skinparam ArrowThickness 2
+
+@enduml

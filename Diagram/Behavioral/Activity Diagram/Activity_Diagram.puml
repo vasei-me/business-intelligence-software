@@ -1,0 +1,75 @@
+@startuml Activity_Diagram
+' ----------------------------------------------------
+' Global Style Configuration (تنظیمات ظاهری)
+' ----------------------------------------------------
+skinparam style strict
+skinparam shadowing false
+
+skinparam activity {
+    BorderColor #2C3E50
+    BackgroundColor #D5F5E3
+    DiamondBackgroundColor #A93226
+    ArrowColor #2C3E50
+    FontName Arial
+    FontSize 12
+}
+
+title **Sepidz BI Platform - Activity Diagram: CRISP-DM Cycle**
+caption Workflow for Business Intelligence Project (Business Understanding to Modeling)
+
+' ----------------------------------------------------
+' ACTIVITIES (فعالیت‌ها)
+' ----------------------------------------------------
+start
+:Define Business Objectives;
+note right: Based on Strategic Goals (NFRs)
+
+:Assess Current Situation;
+
+' 1. Data Understanding & Preparation Phase (Swimlanes for clarity)
+partition "Data Layer" {
+  :Identify Data Sources;
+  :Collect Raw Data;
+  
+  fork
+    :Cleanse Data (NFR-021);
+  fork again
+    :Transform Data (ETL) (NFR-013);
+  end fork
+  
+  :Verify Data Quality;
+}
+
+' Decision Point: Is Data Ready for Modeling?
+if (Is Data Quality Sufficient?) then (Yes)
+  :Format Data for Modeling;
+  
+  partition "Analytics Layer" {
+    :Select Modeling Technique;
+    
+    ' Decision Point: Model Goal (e.g., Forecasting - NFR-012)
+    if (Model Goal is Prediction?) then (Yes, Forecast)
+      :Train Forecasting Model (NFR-012);
+    else (No, Segmentation)
+      :Train Segmentation Model;
+    endif
+    
+    :Evaluate Model Performance;
+  }
+  
+  ' Decision Point: Is Model Performance Acceptable?
+  if (Performance Acceptable?) then (Yes)
+    :Deploy Model to Production;
+    :Monitor Model Drift;
+    
+    stop
+  else (No, Refine)
+    -> Re-select Modeling Technique;
+  endif
+
+else (No, Needs more prep)
+  -> Identify Data Gaps;
+  -> Collect Raw Data;
+endif
+
+@enduml

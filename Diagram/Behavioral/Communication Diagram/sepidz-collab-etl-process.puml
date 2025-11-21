@@ -1,0 +1,24 @@
+@startuml
+title Collaboration: فرآیند ETL روزانه
+
+actor "Scheduler" as sch
+participant "ETL Orchestrator" as orch
+participant "POS Database" as pos
+participant "Data Quality Engine" as dq
+participant "Data Warehouse" as dw
+participant "Log Service" as log
+
+sch -> orch ++ : شروع ETL
+orch -> pos ++ : extract_raw_data()
+pos --> orch -- : raw_records
+orch -> dq ++ : validate()
+dq --> orch -- : valid / invalid
+alt داده معتبر
+  orch -> dw ++ : load_kimball_model()
+  dw --> orch -- : loaded
+else خطا
+  orch -> log ++ : record_quality_issue()
+  log --> orch --
+end
+orch -> log : record_success()
+@enduml

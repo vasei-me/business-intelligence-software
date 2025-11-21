@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam monochrome false
+skinparam dpi 300
+
+title ساختار تیم Agile پروژه هوش تجاری سپیدز\n(۹ نفر – بر پایه Scrum)
+
+package "تیم پروژه سپیدز BI" #LightBlue {
+  actor "Product Owner\n(اولویت‌بندی + تأیید نیازمندی‌ها)" as PO
+  actor "Scrum Master\n(حذف موانع + برگزاری مراسم)" as SM
+  
+  package "تیم توسعه (۷ نفر)" {
+    actor "Backend & Data Engineer\n۲ نفر" as BE
+    actor "Data Scientist / ML Engineer\n۲ نفر" as DS
+    actor "Frontend Developer (React)\n۲ نفر" as FE
+    actor "DevOps & QA Engineer\n۱ نفر" as DO
+  }
+  
+  actor "استاد راهنما\nدکتر حجت فضایلی" as Advisor
+  actor "ذینفعان کلیدی\nمدیران رستوران‌ها + تیم سپیدز" as Stake
+}
+
+PO -down-> SM : همکاری روزانه
+PO -down-> BE
+PO -down-> DS
+PO -down-> FE
+PO -down-> DO
+SM -right-> BE
+SM -right-> DS
+SM -right-> FE
+SM -right-> DO
+
+Advisor -[hidden]down- Stake
+
+note right of PO
+  • تعریف و اولویت‌بندی بک‌لاگ
+  • پذیرش استوری‌ها
+  • ارتباط با ذینفعان
+end note
+
+note right of DS
+  • مدل‌های پیش‌بینی تقاضا
+  • خوشه‌بندی مشتریان
+  • Backtesting و ارزیابی دقت
+end note
+
+note right of DO
+  • CI/CD + Docker + AWS
+  • تست عملکرد و امنیت
+  • مانیتورینگ
+end note
+
+@enduml

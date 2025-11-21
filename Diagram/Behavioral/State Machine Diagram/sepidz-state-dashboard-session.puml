@@ -1,0 +1,13 @@
+@startuml
+[*] --> Loading
+Loading --> Authenticated : توکن معتبر
+Authenticated --> DashboardHome
+DashboardHome --> ViewingSales
+DashboardHome --> ViewingPrediction
+ViewingPrediction --> ExportingCSV : کلیک دانلود
+ExportingCSV --> DashboardHome
+ViewingSales --> FilteringDate
+FilteringDate --> ViewingSales
+DashboardHome --> Logout : خروج
+Logout --> [*]
+@enduml

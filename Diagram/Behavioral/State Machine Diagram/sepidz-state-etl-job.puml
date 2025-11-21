@@ -1,0 +1,15 @@
+@startuml
+[*] --> Idle
+Idle --> Running : زمان‌بندی/دستی
+Running --> Validating : استخراج کامل
+Validating --> Cleaning : خطای کیفیت
+Validating --> Transforming : معتبر
+Cleaning --> Transforming
+Transforming --> Loading
+Loading --> Success
+Loading --> Failed
+Success --> Idle
+Failed --> Idle
+Success --> Notified : ایمیل
+Failed --> Notified : هشدار
+@enduml

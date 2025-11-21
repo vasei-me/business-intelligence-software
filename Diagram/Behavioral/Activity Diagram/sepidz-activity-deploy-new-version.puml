@@ -1,0 +1,19 @@
+@startuml
+start
+:تغییر کد در Git;
+:اجرای تست واحد;
+if (تست‌ها پاس؟) then (بله)
+  :ساخت Docker Image;
+  :پوش به ECR;
+  :به‌روزرسانی ECS Service;
+  :اجرای Smoke Test;
+  if (سالم؟) then (بله)
+    :تگ نسخه جدید;
+  else (خیر)
+    :Rollback;
+  endif
+else (خیر)
+  :شکست CI;
+endif
+stop
+@enduml

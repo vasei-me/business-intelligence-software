@@ -1,0 +1,39 @@
+@startuml
+title SepidZ BI - Sprint Plan & Roadmap
+footer 16 Weeks | 8 Sprints (2 weeks each) | Incremental + Prototyping
+
+robust "Week" as W
+concise "Sprint" as S
+
+@0
+W is Week-0
+S is -
+
+@2
+S is S1
+
+@4
+S is S2
+
+@6
+S is S3
+
+@8
+S is S4
+
+@10
+S is S5
+
+@12
+S is S6
+
+@14
+S is S7
+
+@16
+S is S8
+
+note bottom of W : MVP Ready at Week 4 | Prediction Live at Week 12 | Go-Live at Week 16
+note bottom of S : Inc1 (S1-S2): ETL + Kimball DW | Inc2 (S3-S4): Dashboards | Inc3 (S5-S6): Prediction | Inc4 (S7-S8): Deployment
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+title Collaboration: پیش‌بینی تقاضا
+
+actor "مدیر شعبه" as mgr
+participant "Dashboard UI" as ui
+participant "API Gateway" as api
+participant "Prediction Service" as pred
+participant "Cache (Redis)" as cache
+participant "Data Warehouse" as dw
+
+mgr -> ui ++ : درخواست پیش‌بینی ۷ روزه
+ui -> api ++ : GET /predict?branch=5
+api -> cache ++ : get(key)
+alt در کش موجود
+  cache --> api -- : result
+else از دست رفته
+  api -> dw ++ : query_historical()
+  dw --> api --
+  api -> pred ++ : predict()
+  pred --> api -- : forecast
+  api -> cache : set(key, ttl=1h)
+end
+api --> ui -- : JSON forecast
+ui --> mgr : نمایش نمودار
+@enduml

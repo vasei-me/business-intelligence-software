@@ -1,0 +1,87 @@
+@startuml
+skinparam shadowing false
+skinparam sequence {
+    ArrowColor #2C3E50
+    ActorBorderColor #2C3E50
+    LifeLineBorderColor #E67E22
+    LifeLineBackgroundColor #FDF2E9
+    ParticipantBorderColor #D35400
+    ParticipantBackgroundColor #E67E22
+    ParticipantFontColor white
+}
+
+title SepidZ BI – Sequence Diagram: پیش‌بینی تقاضا و نمایش در داشبورد (Increment 3)
+
+actor "مدیر رستوران / زنجیره" as Manager
+participant "Dashboard UI\n(React.js)" as UI
+participant "BI Backend API\n(FastAPI)" as API
+participant "Prediction Service\n(Python + Scikit-learn / Prophet / LSTM)" as Predictor
+participant "Kimball Data Warehouse\n(PostgreSQL)" as DW
+participant "Cache Layer\n(Redis)" as Cache
+participant "Audit & Log Service" as Log
+
+autonumber
+
+Manager -> UI : انتخاب "پیش‌بینی تقاضا" برای شعبه X و ۷ روز آینده
+activate UI
+
+UI -> API : GET /api/v1/predictions/demand?branch_id=7&days=7
+activate API
+
+API -> Cache : get_cached_prediction(branch_id=7, horizon=7days)
+activate Cache
+alt موجود در کش (کمتر از ۱ ساعت)
+    Cache --> API : cached_result
+    deactivate Cache
+else منقضی یا موجود نیست
+    Cache --> API : cache_miss
+    deactivate Cache
+
+    API -> DW : query_historical_sales(branch_id=7, last_2_years)
+    activate DW
+    DW --> API : historical_fact_sales + dimensions
+    deactivate DW
+
+    API -> Predictor : predict_demand(historical_data, horizon=7)
+    activate Predictor
+
+    Predictor -> Predictor : preprocess() → feature_engineering()\n(روز هفته، تعطیلات، روند فصلی، پروموشن‌ها و ...)
+    
+    alt مدل انتخابی Prophet
+        Predictor -> Predictor : fit_prophet_model()
+    else مدل LSTM
+        Predictor -> Predictor : train_lstm_sequence()
+    end
+
+    Predictor --> API : predictions_df {\n  product_id, date, predicted_qty, lower_bound, upper_bound\n}
+    deactivate Predictor
+
+    API -> Cache : set_cached_prediction(key, result, ttl=3600)
+    activate Cache
+    Cache --> API : cached
+    deactivate Cache
+
+    API -> Log : log_prediction_request(user_id, branch_id, model_version)
+    activate Log
+    Log --> API : logged
+    deactivate Log
+end
+
+API --> UI : 200 OK + JSON predictions + accuracy_metrics
+deactivate API
+
+UI -> UI : render_prediction_chart()\n+ جدول پیش‌بینی آیتم‌ها + نمودار اطمینان
+
+UI --> Manager : نمایش داشبورد پیش‌بینی با\nنمودار خطی + باند اطمینان + مقایسه با فروش واقعی هفته قبل
+
+note right of UI
+  کاربر می‌تواند:
+  • فیلتر آیتم/دسته‌بندی
+  • تغییر بازه زمانی
+  • دانلود CSV پیش‌بینی
+  • ارسال خودکار به سیستم سفارش مواد اولیه
+end note
+
+deactivate UI
+
+@enduml

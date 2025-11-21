@@ -1,0 +1,14 @@
+@startuml
+title حالت مدل پیش‌بینی تقاضا
+[*] --> Draft
+Draft --> Training : داده جدید
+Training --> Trained
+Trained --> Validating : backtesting
+Validating --> Deployed : دقت > 85%
+Validating --> Retraining : دقت پایین
+Deployed --> Monitoring
+Monitoring --> Retraining : drift شناسایی شد
+Retraining --> Training
+Deployed --> Retired : مدل جدید جایگزین
+Retired --> [*]
+@enduml

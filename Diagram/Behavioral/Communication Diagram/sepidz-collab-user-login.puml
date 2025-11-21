@@ -1,0 +1,18 @@
+@startuml
+title Collaboration: ورود کاربر با RBAC
+
+actor "کاربر" as user
+participant "Frontend" as fe
+participant "Auth Service" as auth
+participant "JWT Token" as jwt
+participant "RBAC Service" as rbac
+
+user -> fe ++ : وارد کردن نام کاربری/رمز
+fe -> auth ++ : POST /login
+auth -> auth : اعتبارسنجی
+auth --> jwt ** : تولید توکن
+auth --> fe -- : توکن JWT
+fe -> rbac ++ : validate_token + roles
+rbac --> fe -- : نقش‌ها (مدیر/تحلیلگر)
+fe --> user : دسترسی به داشبورد
+@enduml

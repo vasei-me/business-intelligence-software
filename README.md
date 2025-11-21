@@ -1,29 +1,19 @@
-# Business Intelligence Software – System Design with PlantUML
+# SepidZ Business Intelligence Platform – System Design
 
-![VS Code](https://img.shields.io/badge/IDE-VS%20Code-007ACC?logo=visual-studio-code)
-![PlantUML](https://img.shields.io/badge/Diagrams-PlantUML-4CAF50?logo=plantuml)
-![GitHub Repo](https://img.shields.io/github/stars/vasei-me/business-intelligence-software?style=social)
-![License](https://img.shields.io/github/license/vasei-me/business-intelligence-software)
-
-> **A comprehensive Business Intelligence (BI) platform** for **data ingestion, transformation, storage, and visualization**.  
-> This repository contains **10 professional UML diagrams** created using **PlantUML** and rendered **live in Visual Studio Code**.
+> **A comprehensive Business Intelligence (BI) solution** for the SepidZ restaurant management ecosystem  
+> Complete architectural documentation using **PlantUML** – fully editable and live-rendered in VS Code
 
 ---
 
 ## Table of Contents
 
 - [Project Overview](#project-overview)
+- [Key Features](#key-features)
 - [Prerequisites](#prerequisites)
 - [VS Code + PlantUML Setup](#vs-code--plantuml-setup)
-  - [1. Install PlantUML Extension](#1-install-plantuml-extension)
-  - [2. Install Graphviz & Java](#2-install-graphviz--java)
-  - [3. Configure Settings](#3-configure-settings)
-- [How to Use PlantUML](#how-to-use-plantuml)
-  - [Live Preview](#live-preview)
-  - [Export Diagrams](#export-diagrams)
-  - [Auto-Export on Save](#auto-export-on-save)
-- [10 UML Diagrams Catalog](#10-uml-diagrams-catalog)
-- [Tips & Best Practices](#tips--best-practices)
+- [How to View & Edit Diagrams](#how-to-view--edit-diagrams)
+- [Diagrams Catalog (10 UML + Bonus Diagrams)](#diagrams-catalog)
+- [Best Practices & Tips](#best-practices--tips)
 - [Contributing](#contributing)
 - [Security Notes](#security-notes)
 - [License](#license)
@@ -32,26 +22,39 @@
 
 ## Project Overview
 
-This project provides a **complete architectural blueprint** of a modern **Business Intelligence system** using **standard UML 2.5 diagrams**.
+This repository contains the **complete system design** of **SepidZ Business Intelligence (BI)** platform, developed as the final project for the Software Engineering course under supervision of **Dr. Hojjat Fazayeli** (Academic Year 1404-1405 / 2025-2026).
 
-All diagrams are:
-- Written in **PlantUML syntax** (`.puml` files)
-- **Editable in real-time**
-- **Rendered instantly** in VS Code
-- **Version-controlled** with Git
+The system transforms raw transactional data from SepidZ POS into actionable insights using:
 
-> **Goal**: Deliver **clear, maintainable, and professional documentation** for developers, architects, analysts, and stakeholders.
+- Kimball dimensional modeling
+- CRISP-DM methodology
+- Modern ETL pipelines (FastAPI, React, PostgreSQL, Redis, Docker, AWS)
+
+All diagrams are created with **PlantUML** for maximum maintainability and collaboration.
+
+---
+
+## Features
+
+- 4 Core UML diagrams (Sequence, Component, Deployment, Sprint Plan)
+- 9 Bonus diagrams for extra credit:
+  - 3 Collaboration Diagrams
+  - 3 State Machine Diagrams
+  - 3 Activity Diagrams
+- Live preview in VS Code
+- Automatic PNG/SVG export on save
+- Fully version-controlled
 
 ---
 
 ## Prerequisites
 
-| Tool        | Minimum Version | Installation Command |
-|-------------|------------------|------------------------|
-| **VS Code** | Latest           | [Download](https://code.visualstudio.com/) |
-| **Git**     | 2.30+            | `winget install --id Git.Git` |
-| **Java**    | 11+ (JRE/JDK)    | Required by PlantUML |
-| **Graphviz**| 2.38+            | Required for rendering |
+| Tool         | Minimum Version | Download / Install Command                         |
+| ------------ | --------------- | -------------------------------------------------- |
+| VS Code      | Latest          | https://code.visualstudio.com/                     |
+| Git          | 2.30+           | `winget install --id Git.Git -e --source winget`   |
+| Java JRE/JDK | 11+             | `winget install Oracle.JDK.21` or Adoptium Temurin |
+| Graphviz     | 2.38+           | `winget install Graphviz.Graphviz`                 |
 
 ---
 
@@ -59,26 +62,19 @@ All diagrams are:
 
 ### 1. Install PlantUML Extension
 
-1. Open VS Code
-2. Press `Ctrl+Shift+X` → **Extensions**
-3. Search: `PlantUML`
-4. Install: **PlantUML by Jebbs** (most popular)
+```bash
+code --install-extension jebbs.plantuml
+```
 
-> Or via terminal:
-> ```bash
-> code --install-extension jebbs.plantuml
-> ```
+2. Recommended Settings (add to settings.json)
+   {
+   "plantuml.render": "PlantUMLServer",
+   "plantuml.server": "https://www.plantuml.com/plantuml",
+   "plantuml.exportFormat": "png",
+   "plantuml.exportOutDir": "diagrams-export",
+   "plantuml.exportSubFolder": false,
+   "plantuml.autoExportOnSave": true
+   }
 
----
-
-### 2. Install Graphviz & Java
-
-#### Windows (Recommended: Winget or Chocolatey)
-```powershell
-# Using Winget
-winget install Graphviz.Graphviz
-winget install Oracle.JDK.17
-
-# Using Chocolatey
-choco install graphviz
-choco install jdk17
+3. Optional: Local PlantUML Server (for offline work)
+   java -jar plantuml.jar -http 8080

@@ -1,5 +1,19 @@
 # SepidZ Business Intelligence Platform – System Design
 
+<div align="center">
+
+![SepidZ Business Intelligence Platform
+
+<br/>
+
+<a href="https://github.com/vasei-me/business-intelligence-software/raw/main/cover.png">
+  <img src="https://github.com/vasei-me/business-intelligence-software/raw/main/cover.png" width="600"/>
+</a>
+
+</div>
+
+<br/><br/>
+
 > **A comprehensive Business Intelligence (BI) solution** for the SepidZ restaurant management ecosystem  
 > Complete architectural documentation using **PlantUML** – fully editable and live-rendered in VS Code
 

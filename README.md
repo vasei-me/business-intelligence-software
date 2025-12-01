@@ -13,13 +13,6 @@
 - [Key Features](#key-features)
 - [Prerequisites](#prerequisites)
 - [VS Code + PlantUML Setup](#vs-code--plantuml-setup)
-- [How to View & Edit Diagrams](#how-to-view--edit-diagrams)
-- [Diagrams Catalog (10 UML + Bonus Diagrams)](#diagrams-catalog)
-- [Best Practices & Tips](#best-practices--tips)
-- [Contributing](#contributing)
-- [Security Notes](#security-notes)
-- [License](#license)
-
 ---
 
 ## Project Overview
